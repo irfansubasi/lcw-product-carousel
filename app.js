@@ -44,6 +44,7 @@ function generateCarousel() {
       productLink: 'ins-product-link',
       oldPrice: 'ins-old-price',
       currentPrice: 'ins-current-price',
+      carouselWrapper: 'ins-carousel-wrapper',
     };
 
     const selectors = {
@@ -68,6 +69,7 @@ function generateCarousel() {
       productLink: `.${classes.productLink}`,
       oldPrice: `.${classes.oldPrice}`,
       currentPrice: `.${classes.currentPrice}`,
+      carouselWrapper: `.${classes.carouselWrapper}`,
     };
 
     const self = {};
@@ -77,12 +79,15 @@ function generateCarousel() {
       self.buildCSS();
       self.setEvents();
       self.checkAndLoadData();
+      self.carouselSlide();
     };
 
     self.reset = () => {
       $(selectors.style).remove();
       $(selectors.productRecom).remove();
       $(document).off('.favoritesEvent');
+      $(document).off('.prevEvent');
+      $(document).off('.nextEvent');
     };
 
     self.buildCSS = () => {
@@ -122,9 +127,15 @@ function generateCarousel() {
                 padding: 0;
               }
 
+              ${selectors.carouselWrapper}{
+                overflow: hidden;
+              }
+
               ${selectors.carouselSlider}{
                 display: flex;
                 gap: 9px;
+                transition: transform 0.4s ease;
+                will-change: transform;
               }
 
               ${selectors.carousel}{
@@ -147,7 +158,7 @@ function generateCarousel() {
                 border: none;
                 position: absolute;
                 top: 50%;
-                right: 0;
+                right: -35px;
                 transform: translateY(-50%);
               }
 
@@ -258,7 +269,9 @@ function generateCarousel() {
           </div>
           <div class="${classes.carousel}">
               <button class="${classes.previousBtn}"><svg xmlns="http://www.w3.org/2000/svg" width="14.242" height="24.242" viewBox="0 0 14.242 24.242"><path fill="none" stroke="#333" stroke-linecap="round" stroke-width="3px" d="M2106.842 2395.467l-10 10 10 10" transform="translate(-2094.721 -2393.346)"></path></svg></button>
-              <div class="${classes.carouselSlider}">
+              <div class="${classes.carouselWrapper}">
+                <div class="${classes.carouselSlider}">
+                </div>
               </div>
               <button class="${classes.nextBtn}"><svg xmlns="http://www.w3.org/2000/svg" width="14.242" height="24.242" viewBox="0 0 14.242 24.242"><path fill="none" stroke="#333" stroke-linecap="round" stroke-width="3px" d="M2106.842 2395.467l-10 10 10 10" transform="translate(-2094.721 -2393.346)"></path></svg></button>
             </div>
@@ -361,6 +374,33 @@ function generateCarousel() {
           .find('path')
           .attr('fill', '#193db0')
           .attr('stroke', 'none');
+      });
+    };
+
+    self.carouselSlide = () => {
+      const wrapper = $(selectors.carouselWrapper);
+      const slider = $(selectors.carouselSlider);
+      const cards = slider.find(`.${classes.productCard}`);
+
+      const gap = 9;
+      const cardWidth = 220;
+      const totalCardWidth = cardWidth + gap;
+      const totalWidth = totalCardWidth * cards.length;
+      const wrapperWidth = wrapper.outerWidth();
+
+      let currentIndex = 0;
+
+      slider.css('width', `${totalWidth}px`);
+
+      $(selectors.previousBtn).on(`click.prevEvent`, () => {
+        currentIndex = Math.max(currentIndex - totalCardWidth, 0);
+        slider.css('transform', `translateX(-${currentIndex}px)`);
+      });
+
+      $(selectors.nextBtn).on(`click.nextEvent`, () => {
+        const maxScroll = totalWidth - wrapperWidth;
+        currentIndex = Math.min(currentIndex + totalCardWidth, maxScroll);
+        slider.css('transform', `translateX(-${currentIndex}px)`);
       });
     };
 
