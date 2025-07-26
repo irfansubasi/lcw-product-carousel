@@ -81,6 +81,8 @@ function generateCarousel() {
 
     self.reset = () => {
       $(selectors.style).remove();
+      $(selectors.productRecom).remove();
+      $(document).off('.favoritesEvent');
     };
 
     self.buildCSS = () => {
@@ -115,7 +117,6 @@ function generateCarousel() {
               
               ${selectors.info} {
                 margin-left: 8px;
-                cursor: pointer;
                 border: none;
                 background-color: transparent;
                 padding: 0;
@@ -178,6 +179,15 @@ function generateCarousel() {
 
               ${selectors.productLink}{
                 text-decoration: none;
+                cursor: default;
+              }
+
+              ${selectors.productLink}:hover{
+                text-decoration: none!important;
+              }
+
+              ${selectors.productLink}:focus{
+                text-decoration: none!important;
               }
 
               ${selectors.productInfo}{
@@ -316,8 +326,8 @@ function generateCarousel() {
       $(selectors.carouselSlider).empty();
       $.each(products, (index, product) => {
         const cardDiv = `
-        <a href="${product.url}" class=${classes.productLink}>
-            <div class=${classes.productCard}>
+        <a href="${product.url}" class=${classes.productLink} target="_blank">
+            <div class=${classes.productCard} data-product-id="${product.id}">
                 <div class=${classes.imgWrapper}>
                     <img src=${product.img} class=${classes.productImg} />
                     <div class=${classes.favorite}>
@@ -341,9 +351,52 @@ function generateCarousel() {
 
         $(selectors.carouselSlider).append(cardDiv);
       });
+
+      const favorites = JSON.parse(
+        localStorage.getItem('insFavorites') || '[]'
+      );
+      $.each(favorites, (index, id) => {
+        $(`.${classes.productCard}[data-product-id="${id}"]`)
+          .find(`.${classes.favorite}`)
+          .find('path')
+          .attr('fill', '#193db0')
+          .attr('stroke', 'none');
+      });
     };
 
-    self.setEvents = () => {};
+    self.setEvents = () => {
+      $(selectors.carouselSlider).on(
+        `click.favoritesEvent`,
+        selectors.favorite,
+        function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+
+          const productId = $(this)
+            .closest(`.${classes.productCard}`)
+            .data('product-id');
+          const path = $(this).find('path');
+          const favorites = JSON.parse(
+            localStorage.getItem('insFavorites') || '[]'
+          );
+
+          if (path.attr('fill') === '#fff') {
+            path.attr('fill', '#193db0');
+            path.attr('stroke', 'none');
+            favorites.push(productId);
+          } else {
+            path.attr('fill', '#fff');
+            path.attr('stroke', '#B6B7B9');
+            const index = favorites.indexOf(productId);
+            if (index > -1) {
+              favorites.splice(index, 1);
+            }
+          }
+
+          localStorage.setItem('insFavorites', JSON.stringify(favorites));
+        }
+      );
+    };
 
     $(document).ready(self.init);
   })(jQuery);
