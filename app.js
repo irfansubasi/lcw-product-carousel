@@ -45,6 +45,7 @@ function generateCarousel() {
       oldPrice: 'ins-old-price',
       currentPrice: 'ins-current-price',
       carouselWrapper: 'ins-carousel-wrapper',
+      dragging: 'ins-dragging',
     };
 
     const selectors = {
@@ -70,6 +71,7 @@ function generateCarousel() {
       oldPrice: `.${classes.oldPrice}`,
       currentPrice: `.${classes.currentPrice}`,
       carouselWrapper: `.${classes.carouselWrapper}`,
+      dragging: `.${classes.dragging}`,
     };
 
     const self = {};
@@ -79,7 +81,7 @@ function generateCarousel() {
       self.buildCSS();
       self.setEvents();
       self.checkAndLoadData();
-      self.carouselSlide();
+      self.enableMouseDragScroll($(selectors.carouselWrapper));
     };
 
     self.reset = () => {
@@ -128,14 +130,8 @@ function generateCarousel() {
               }
 
               ${selectors.carouselWrapper}{
-                overflow-x: auto;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-                scroll-snap-type: x mandatory;
-                scroll-snap-align: start;
+                overflow: hidden;
                 scroll-behavior: smooth;
-                -webkit-overflow-scrolling: touch;
-                -ms-overflow-style: none;
               }
 
               ${selectors.carouselSlider}{
@@ -175,6 +171,8 @@ function generateCarousel() {
                 align-items: center;
                 width: 220px;
                 height: 395px;
+                user-select: none;
+                pointer-events: none;
               }
 
               ${selectors.imgWrapper}{
@@ -259,6 +257,23 @@ function generateCarousel() {
 
               ${selectors.productInfo} p{
                 margin: 0;
+              }
+
+              ${selectors.dragging}{
+                cursor: grabbing;
+              }
+
+              @media (max-width: 992px) {
+                ${selectors.carouselWrapper}{
+                  overflow-x: auto;
+                  scrollbar-width: none;
+                  -ms-overflow-style: none;
+                  scroll-snap-type: x mandatory;
+                  scroll-snap-align: start;
+                  scroll-behavior: smooth;
+                  -webkit-overflow-scrolling: touch;
+                  -ms-overflow-style: none;
+                }
               }
               
             </style>
@@ -384,33 +399,6 @@ function generateCarousel() {
       });
     };
 
-    self.carouselSlide = () => {
-      const wrapper = $(selectors.carouselWrapper);
-      const slider = $(selectors.carouselSlider);
-      const cards = slider.find(`.${classes.productCard}`);
-
-      const gap = 9;
-      const cardWidth = 220;
-      const totalCardWidth = cardWidth + gap;
-      const totalWidth = totalCardWidth * cards.length;
-      const wrapperWidth = wrapper.outerWidth();
-
-      let currentIndex = 0;
-
-      slider.css('width', `${totalWidth}px`);
-
-      $(selectors.previousBtn).on(`click.prevEvent`, () => {
-        currentIndex = Math.max(currentIndex - totalCardWidth, 0);
-        slider.css('transform', `translateX(-${currentIndex}px)`);
-      });
-
-      $(selectors.nextBtn).on(`click.nextEvent`, () => {
-        const maxScroll = totalWidth - wrapperWidth;
-        currentIndex = Math.min(currentIndex + totalCardWidth, maxScroll);
-        slider.css('transform', `translateX(-${currentIndex}px)`);
-      });
-    };
-
     self.setEvents = () => {
       $(selectors.carouselSlider).on(
         `click.favoritesEvent`,
@@ -443,6 +431,42 @@ function generateCarousel() {
           localStorage.setItem('insFavorites', JSON.stringify(favorites));
         }
       );
+
+      $(selectors.previousBtn).on(`click.prevEvent`, () => {
+        const currentScroll = $(selectors.carouselWrapper).scrollLeft();
+        $(selectors.carouselWrapper).scrollLeft(currentScroll - 229);
+      });
+
+      $(selectors.nextBtn).on(`click.nextEvent`, () => {
+        const currentScroll = $(selectors.carouselWrapper).scrollLeft();
+        $(selectors.carouselWrapper).scrollLeft(currentScroll + 229);
+      });
+    };
+
+    self.enableMouseDragScroll = (wrapper) => {
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      wrapper.on('mousedown', function (e) {
+        isDown = true;
+        startX = e.pageX - wrapper.offset().left;
+        scrollLeft = wrapper.scrollLeft();
+        wrapper.addClass('dragging');
+      });
+
+      $(document).on('mouseup', function () {
+        isDown = false;
+        wrapper.removeClass('dragging');
+      });
+
+      $(document).on('mousemove', function (e) {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - wrapper.offset().left;
+        const walk = (x - startX) * 1;
+        wrapper.scrollLeft(scrollLeft - walk);
+      });
     };
 
     $(document).ready(self.init);
