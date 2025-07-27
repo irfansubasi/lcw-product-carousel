@@ -265,6 +265,7 @@ function generateCarousel() {
 
               @media (max-width: 992px) {
                 ${selectors.carouselWrapper}{
+                  scroll-behavior: unset;
                   overflow-x: auto;
                   scrollbar-width: none;
                   -ms-overflow-style: none;
@@ -273,6 +274,61 @@ function generateCarousel() {
                   scroll-behavior: smooth;
                   -webkit-overflow-scrolling: touch;
                   -ms-overflow-style: none;
+                }
+
+                ${selectors.previousBtn}{
+                  display: none;
+                }
+
+                ${selectors.nextBtn}{
+                  display: none;
+                }
+
+                ${selectors.productCard}{
+                  width: 280px;
+                  height: 521.75px;
+                }
+
+                ${selectors.imgWrapper}{
+                  height: 372.75px;
+                }
+
+                ${selectors.carouselContainer}{
+                  width: 100%;
+                  padding: 0 15px;
+                  z-index: 1;
+                }
+
+                ${selectors.carouselSlider}{
+                  gap: 24.38px;
+                }
+
+                ${selectors.titleContainer}{
+                  font-size: 24px;
+                  font-weight: 100;
+                }
+
+                ${selectors.title}{
+                  line-height: 33px;
+                }
+              }
+
+              @media (max-width: 768px) {
+                ${selectors.carouselSlider}{
+                  gap: 21px;
+                }
+              }
+
+              @media (max-width: 576px) {
+                ${selectors.carouselSlider}{
+                  gap: 15px;
+                }
+              }
+
+              @media (max-width: 408px) {
+                ${selectors.titleContainer}{
+                  flex-direction: column;
+                  align-items: flex-start;
                 }
               }
               
