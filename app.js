@@ -128,7 +128,14 @@ function generateCarousel() {
               }
 
               ${selectors.carouselWrapper}{
-                overflow: hidden;
+                overflow-x: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                scroll-snap-type: x mandatory;
+                scroll-snap-align: start;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+                -ms-overflow-style: none;
               }
 
               ${selectors.carouselSlider}{
@@ -159,7 +166,7 @@ function generateCarousel() {
                 position: absolute;
                 top: 50%;
                 right: -35px;
-                transform: translateY(-50%);
+                transform: translateY(-50%) rotate(180deg);
               }
 
               ${selectors.productCard}{
