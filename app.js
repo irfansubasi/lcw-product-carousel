@@ -5,7 +5,9 @@
   }
 
   if (!document.querySelector('.product-detail')) {
-    console.error('Bu kod sadece ürün sayfalarında çalışır. Sayfada .product-detail elementi bulunamadı.');
+    console.error(
+      'Bu kod sadece ürün sayfalarında çalışır. Sayfada .product-detail elementi bulunamadı.'
+    );
     return;
   }
 
@@ -521,7 +523,6 @@ function generateCarousel() {
       localStorage.setItem('insProducts', JSON.stringify(toStore));
     };
 
-
     self.getFromLocalStorage = () => {
       const stored = localStorage.getItem('insProducts');
       if (!stored) return null;
@@ -560,30 +561,29 @@ function generateCarousel() {
 
     self.generateOldPrice = (currentPrice) => {
       const shouldHaveOldPrice = Math.random() < 0.3;
-      
+
       if (shouldHaveOldPrice) {
         const price = parseFloat(currentPrice);
         const extraAmount = Math.floor(Math.random() * (150 - 100 + 1)) + 100;
         const oldPriceAmount = price + extraAmount;
         return {
           price: `${oldPriceAmount.toFixed(2)} TL`,
-          class: 'ins-visible'
+          class: 'ins-visible',
         };
       } else {
         return {
           price: '0 TL',
-          class: 'ins-hidden'
+          class: 'ins-hidden',
         };
       }
     };
 
     self.renderProducts = (products) => {
-        $(selectors.carouselSlider).empty();
-        $.each(products, (index, product) => {
-          
-          const oldPriceData = self.generateOldPrice(product.price);
+      $(selectors.carouselSlider).empty();
+      $.each(products, (index, product) => {
+        const oldPriceData = self.generateOldPrice(product.price);
 
-          const cardDiv = `
+        const cardDiv = `
             <div class=${classes.productCardWrapper}>
               <div class=${classes.productCard} data-product-id="${product.id}" data-url="${product.url}">
                 <div class=${classes.imgWrapper}>
@@ -668,27 +668,30 @@ function generateCarousel() {
         $(selectors.carouselWrapper).scrollLeft(currentScroll + 229);
       });
 
-      $(document).on(`click.productCardEvent`, selectors.productCard, function(e) {
-        
-        if(self.hasMoved) return;
-        
-        if ($(e.target).closest(selectors.cartBtn).length > 0) {
-          return;
-        }
-        
-        const url = $(this).data('url');
-        if (url) {
-          window.open(url, '_blank');
-        }
-      });
+      $(document).on(
+        `click.productCardEvent`,
+        selectors.productCard,
+        function (e) {
+          if (self.hasMoved) return;
 
-      $(document).on(`click.cartEvent`, selectors.cartBtn, function(e) {
+          if ($(e.target).closest(selectors.cartBtn).length > 0) {
+            return;
+          }
+
+          const url = $(this).data('url');
+          if (url) {
+            window.open(url, '_blank');
+          }
+        }
+      );
+
+      $(document).on(`click.cartEvent`, selectors.cartBtn, function (e) {
         e.stopPropagation();
 
         const productId = $(this)
           .closest(`.${classes.productCard}`)
           .data('product-id');
-        
+
         const insCart = JSON.parse(localStorage.getItem('insCart') || '[]');
 
         if (insCart.includes(productId)) {
@@ -701,7 +704,6 @@ function generateCarousel() {
         alert('Ürün sepetinize eklendi.');
       });
 
-      
       $(selectors.info).on('click.modalEvent', () => {
         $(selectors.modal).show();
       });
@@ -713,7 +715,6 @@ function generateCarousel() {
       $(selectors.modalButton).on('click.modalEvent', () => {
         $(selectors.modal).hide();
       });
-      
     };
 
     self.enableMouseDragScroll = (wrapper) => {
@@ -741,7 +742,6 @@ function generateCarousel() {
         const x = e.pageX - wrapper.offset().left;
         const walk = (x - startX) * 1;
         wrapper.scrollLeft(scrollLeft - walk);
-
       });
     };
 
