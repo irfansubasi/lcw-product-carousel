@@ -4,7 +4,6 @@
     return;
   }
 
-  // Ürün sayfası kontrolü
   if (!document.querySelector('.product-detail')) {
     console.error('Bu kod sadece ürün sayfalarında çalışır. Sayfada .product-detail elementi bulunamadı.');
     return;
@@ -160,11 +159,11 @@ function generateCarousel() {
                 display: flex;
                 gap: 9px;
                 transition: transform 0.4s ease;
-                will-change: transform;
               }
 
               ${selectors.carousel}{
                 position: relative;
+                padding-bottom: 32px;
               }
 
               ${selectors.previousBtn}{
@@ -256,7 +255,14 @@ function generateCarousel() {
                 font-size: 14px;
                 color:#555;
                 text-decoration: line-through;
+              }
+
+              ${selectors.oldPrice}.ins-hidden {
                 visibility: hidden;
+              }
+
+              ${selectors.oldPrice}.ins-visible {
+                visibility: visible;
               }
 
               ${selectors.oldPrice} p{
@@ -418,6 +424,7 @@ function generateCarousel() {
       localStorage.setItem('insProducts', JSON.stringify(toStore));
     };
 
+
     self.getFromLocalStorage = () => {
       const stored = localStorage.getItem('insProducts');
       if (!stored) return null;
@@ -454,35 +461,57 @@ function generateCarousel() {
         });
     };
 
+    self.generateOldPrice = (currentPrice) => {
+      const shouldHaveOldPrice = Math.random() < 0.3;
+      
+      if (shouldHaveOldPrice) {
+        const price = parseFloat(currentPrice);
+        const extraAmount = Math.floor(Math.random() * (150 - 100 + 1)) + 100;
+        const oldPriceAmount = price + extraAmount;
+        return {
+          price: `${oldPriceAmount.toFixed(2)} TL`,
+          class: 'ins-visible'
+        };
+      } else {
+        return {
+          price: '0 TL',
+          class: 'ins-hidden'
+        };
+      }
+    };
+
     self.renderProducts = (products) => {
-      $(selectors.carouselSlider).empty();
-      $.each(products, (index, product) => {
-        const cardDiv = `
-          <div class=${classes.productCardWrapper}>
-            <div class=${classes.productCard} data-product-id="${product.id}" data-url="${product.url}">
-              <div class=${classes.imgWrapper}>
-                  <img src=${product.img} class=${classes.productImg} />
-                  <div class=${classes.favorite}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" fill="none"><path fill="#fff" fill-rule="evenodd" stroke="#B6B7B9" d="M19.97 6.449c-.277-3.041-2.429-5.247-5.123-5.247-1.794 0-3.437.965-4.362 2.513C9.57 2.147 7.993 1.2 6.228 1.2c-2.694 0-4.846 2.206-5.122 5.247-.022.135-.112.841.16 1.994.393 1.663 1.3 3.175 2.621 4.373l6.594 5.984 6.707-5.984c1.322-1.198 2.228-2.71 2.62-4.373.273-1.152.183-1.86.162-1.993z" clip-rule="evenodd"></path></svg>
-                  </div>
-              </div>
-              <div class=${classes.productInfo}>
-                <div class=${classes.productName}> <p>${product.name}</p> </div>
-                <div class=${classes.productPrice}>
-                  <div class=${classes.oldPrice}>
-                    <p>&nbsp;</p>
-                  </div>
-                  <div class=${classes.currentPrice}>
-                    <p>${product.price} TL</p>
-                  </div>
+        $(selectors.carouselSlider).empty();
+        $.each(products, (index, product) => {
+          
+          const oldPriceData = self.generateOldPrice(product.price);
+
+          const cardDiv = `
+            <div class=${classes.productCardWrapper}>
+              <div class=${classes.productCard} data-product-id="${product.id}" data-url="${product.url}">
+                <div class=${classes.imgWrapper}>
+                    <img src=${product.img} class=${classes.productImg} />
+                    <div class=${classes.favorite}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" fill="none"><path fill="#fff" fill-rule="evenodd" stroke="#B6B7B9" d="M19.97 6.449c-.277-3.041-2.429-5.247-5.123-5.247-1.794 0-3.437.965-4.362 2.513C9.57 2.147 7.993 1.2 6.228 1.2c-2.694 0-4.846 2.206-5.122 5.247-.022.135-.112.841.16 1.994.393 1.663 1.3 3.175 2.621 4.373l6.594 5.984 6.707-5.984c1.322-1.198 2.228-2.71 2.62-4.373.273-1.152.183-1.86.162-1.993z" clip-rule="evenodd"></path></svg>
+                    </div>
                 </div>
-                <div class=${classes.cartBtnWrapper}>
-                  <span class=${classes.cartBtn}>Sepete Ekle</span>
+                <div class=${classes.productInfo}>
+                  <div class=${classes.productName}> <p>${product.name}</p> </div>
+                  <div class=${classes.productPrice}>
+                    <div class="${classes.oldPrice} ${oldPriceData.class}">
+                      <p>${oldPriceData.price}</p>
+                    </div>
+                    <div class=${classes.currentPrice}>
+                      <p>${product.price} TL</p>
+                    </div>
+                  </div>
+                  <div class=${classes.cartBtnWrapper}>
+                    <span class=${classes.cartBtn}>Sepete Ekle</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-      `;
+        `;
 
         $(selectors.carouselSlider).append(cardDiv);
       });
