@@ -59,6 +59,12 @@ function generateCarousel() {
       dragging: 'ins-dragging',
       cartBtnWrapper: 'ins-cart-btn-wrapper',
       cartBtn: 'ins-cart-btn',
+      modal: 'ins-modal',
+      modalOverlay: 'ins-modal-overlay',
+      modalContent: 'ins-modal-content',
+      modalIcon: 'ins-modal-icon',
+      modalText: 'ins-modal-text',
+      modalButton: 'ins-modal-button',
     };
 
     const selectors = {
@@ -88,6 +94,12 @@ function generateCarousel() {
       dragging: `.${classes.dragging}`,
       cartBtnWrapper: `.${classes.cartBtnWrapper}`,
       cartBtn: `.${classes.cartBtn}`,
+      modal: `.${classes.modal}`,
+      modalOverlay: `.${classes.modalOverlay}`,
+      modalContent: `.${classes.modalContent}`,
+      modalIcon: `.${classes.modalIcon}`,
+      modalText: `.${classes.modalText}`,
+      modalButton: `.${classes.modalButton}`,
     };
 
     const self = {
@@ -110,6 +122,10 @@ function generateCarousel() {
       $(document).off('.nextEvent');
       $(document).off('.cartEvent');
       $(document).off('.productCardEvent');
+      $(document).off('.modalEvent');
+      $(selectors.info).off('.modalEvent');
+      $(selectors.modalOverlay).off('.modalEvent');
+      $(selectors.modalButton).off('.modalEvent');
       self.hasMoved = false;
     };
 
@@ -308,7 +324,73 @@ function generateCarousel() {
                 text-align: center;
                 padding: 8px 28.1px 9px 28.5px;
               }
-              
+
+              ${selectors.modal}{
+                width: 100%;
+                height: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 9999;
+                display: none;
+              }
+
+              ${selectors.modalOverlay}{
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 10;
+              }
+
+              ${selectors.modalIcon}{
+                margin-bottom: 18px;
+              }
+
+              ${selectors.modalContent}{
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #fff;
+                padding: 25px 30px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between;
+                width: 352px;
+                height: auto;
+                border-radius: 5px;
+                z-index: 9999;
+              }
+
+              ${selectors.modalText}{
+                width: 280px;
+                height: 100%;
+                flex-grow: 0;
+                font-size: 16px;
+                line-height: 1.5;
+                text-align: center;
+                color: #555;
+              }
+
+              ${selectors.modalButton}{
+                margin-top: 16px;
+                min-width: 100%;
+                height: 40px;
+                flex-grow: 0;
+                border-radius: 5px;
+                background-color: #193db0;
+                border: none;
+                font-size: 16px;
+                font-weight: 700;
+                line-height: 1.38;
+                color: #fff;
+              }
+
+
 
               @media (max-width: 992px) {
                 ${selectors.carouselWrapper}{
@@ -400,6 +482,21 @@ function generateCarousel() {
               </div>
               <button class="${classes.nextBtn}"><svg xmlns="http://www.w3.org/2000/svg" width="14.242" height="24.242" viewBox="0 0 14.242 24.242"><path fill="none" stroke="#333" stroke-linecap="round" stroke-width="3px" d="M2106.842 2395.467l-10 10 10 10" transform="translate(-2094.721 -2393.346)"></path></svg></button>
             </div>
+        </div>
+      </div>
+      
+      <div class="${classes.modal}">
+        <div class="${classes.modalOverlay}"></div>
+        <div class="${classes.modalContent}">
+          <div class="${classes.modalIcon}">
+            <svg width="65" height="65" viewBox="0 0 65 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M64.09 32.045c0 17.698-14.347 32.045-32.045 32.045S0 49.743 0 32.045 14.347 0 32.045 0 64.09 14.347 64.09 32.045z" fill="#F0F7FC"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M31.898 37.996c-1 0-1.84.839-1.84 1.84 0 1 .84 1.84 1.84 1.84.964 0 1.84-.84 1.796-1.796a1.796 1.796 0 0 0-1.796-1.884z" fill="#1F49B6"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M48.926 44.516c1.155-1.995 1.163-4.371.015-6.358L37.417 18.2c-1.14-2.009-3.2-3.201-5.512-3.201-2.31 0-4.37 1.2-5.511 3.194L14.856 38.173a6.332 6.332 0 0 0 .022 6.394 6.297 6.297 0 0 0 5.497 3.157h23.017c2.304 0 4.371-1.2 5.534-3.208zm-2.502-1.443a3.477 3.477 0 0 1-3.039 1.76H20.367a3.43 3.43 0 0 1-3.002-1.723 3.482 3.482 0 0 1-.008-3.51l11.539-19.971a3.415 3.415 0 0 1 3.01-1.744 3.43 3.43 0 0 1 3.01 1.75l11.53 19.972c.618 1.075.611 2.37-.022 3.466z" fill="#1F49B6"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M31.444 25.081c-.876.25-1.42 1.045-1.42 2.01.044.58.08 1.17.124 1.75l.376 6.601c.044.75.625 1.295 1.376 1.295.75 0 1.34-.58 1.376-1.339 0-.456 0-.876.044-1.34.081-1.42.17-2.84.25-4.26.044-.92.125-1.84.17-2.76 0-.33-.045-.625-.17-.92a1.844 1.844 0 0 0-2.126-1.037z" fill="#1F49B6"></path>
+            </svg>
+          </div>
+          <div class="${classes.modalText}">
+            <p>Bu sayfada satın alma verilerine göre ürün detayına gidilen ürün ile birlikte beden bulunurluğu yüksek olan seçili kategori ve ürün tipinde en sık satın alınan LCW markalı ürünler öncelikli olarak gösterilir.</p>
+          </div>
+          <button class="${classes.modalButton}">TAMAM</button>
         </div>
       </div>
       `;
@@ -602,6 +699,19 @@ function generateCarousel() {
         insCart.push(productId);
         localStorage.setItem('insCart', JSON.stringify(insCart));
         alert('Ürün sepetinize eklendi.');
+      });
+
+      
+      $(selectors.info).on('click.modalEvent', () => {
+        $(selectors.modal).show();
+      });
+
+      $(selectors.modalOverlay).on('click.modalEvent', () => {
+        $(selectors.modal).hide();
+      });
+
+      $(selectors.modalButton).on('click.modalEvent', () => {
+        $(selectors.modal).hide();
       });
       
     };
