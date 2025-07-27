@@ -1,4 +1,15 @@
 (() => {
+  if (window.location.hostname !== 'www.lcw.com') {
+    console.error('Bu kod sadece https://www.lcw.com sitesinde çalışır.');
+    return;
+  }
+
+  // Ürün sayfası kontrolü
+  if (!document.querySelector('.product-detail')) {
+    console.error('Bu kod sadece ürün sayfalarında çalışır. Sayfada .product-detail elementi bulunamadı.');
+    return;
+  }
+
   if (typeof window.jQuery === 'undefined') {
     const script = document.createElement('script');
     script.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
