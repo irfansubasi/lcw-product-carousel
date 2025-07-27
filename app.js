@@ -34,6 +34,7 @@ function generateCarousel() {
       previousBtn: 'ins-prev-btn',
       carouselSlider: 'ins-carousel-slider',
       nextBtn: 'ins-next-btn',
+      productCardWrapper: 'ins-product-card-wrapper',
       productCard: 'ins-product-card',
       imgWrapper: 'ins-img-wrapper',
       productImg: 'ins-product-img',
@@ -46,6 +47,8 @@ function generateCarousel() {
       currentPrice: 'ins-current-price',
       carouselWrapper: 'ins-carousel-wrapper',
       dragging: 'ins-dragging',
+      cartBtnWrapper: 'ins-cart-btn-wrapper',
+      cartBtn: 'ins-cart-btn',
     };
 
     const selectors = {
@@ -60,6 +63,7 @@ function generateCarousel() {
       previousBtn: `.${classes.previousBtn}`,
       carouselSlider: `.${classes.carouselSlider}`,
       nextBtn: `.${classes.nextBtn}`,
+      productCardWrapper: `.${classes.productCardWrapper}`,
       productCard: `.${classes.productCard}`,
       imgWrapper: `.${classes.imgWrapper}`,
       productImg: `.${classes.productImg}`,
@@ -72,9 +76,13 @@ function generateCarousel() {
       currentPrice: `.${classes.currentPrice}`,
       carouselWrapper: `.${classes.carouselWrapper}`,
       dragging: `.${classes.dragging}`,
+      cartBtnWrapper: `.${classes.cartBtnWrapper}`,
+      cartBtn: `.${classes.cartBtn}`,
     };
 
-    const self = {};
+    const self = {
+      hasMoved: false,
+    };
 
     self.init = () => {
       self.buildHTML();
@@ -90,6 +98,9 @@ function generateCarousel() {
       $(document).off('.favoritesEvent');
       $(document).off('.prevEvent');
       $(document).off('.nextEvent');
+      $(document).off('.cartEvent');
+      $(document).off('.productCardEvent');
+      self.hasMoved = false;
     };
 
     self.buildCSS = () => {
@@ -172,7 +183,7 @@ function generateCarousel() {
                 width: 220px;
                 height: 395px;
                 user-select: none;
-                pointer-events: none;
+                cursor: pointer;
               }
 
               ${selectors.imgWrapper}{
@@ -185,25 +196,19 @@ function generateCarousel() {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                user-select: none;
+                -webkit-user-drag: none;
+                -khtml-user-drag: none;
+                -moz-user-drag: none;
+                -o-user-drag: none;
+                user-drag: none;
+                pointer-events: none;
               }
 
               ${selectors.favorite}{
                 position: absolute;
                 top: 6%;
                 right: 10%;
-              }
-
-              ${selectors.productLink}{
-                text-decoration: none;
-                cursor: default;
-              }
-
-              ${selectors.productLink}:hover{
-                text-decoration: none!important;
-              }
-
-              ${selectors.productLink}:focus{
-                text-decoration: none!important;
               }
 
               ${selectors.productInfo}{
@@ -263,6 +268,31 @@ function generateCarousel() {
                 cursor: grabbing;
               }
 
+              ${selectors.cartBtnWrapper}{
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                margin: 10px 0 0;
+              }
+
+              ${selectors.cartBtn} {
+                cursor: pointer;
+                height: 35px;
+                display: block;
+                background-color: #193db0;
+                color: #fff;
+                width: 100%;
+                border-radius: 5px;
+                border: none;
+                line-height: 19px;
+                font-size: 14px;
+                font-weight: bold;
+                text-transform: uppercase;
+                text-align: center;
+                padding: 8px 28.1px 9px 28.5px;
+              }
+              
+
               @media (max-width: 992px) {
                 ${selectors.carouselWrapper}{
                   scroll-behavior: unset;
@@ -271,7 +301,6 @@ function generateCarousel() {
                   -ms-overflow-style: none;
                   scroll-snap-type: x mandatory;
                   scroll-snap-align: start;
-                  scroll-behavior: smooth;
                   -webkit-overflow-scrolling: touch;
                   -ms-overflow-style: none;
                 }
@@ -331,6 +360,7 @@ function generateCarousel() {
                   align-items: flex-start;
                 }
               }
+
               
             </style>
         `;
@@ -417,27 +447,30 @@ function generateCarousel() {
       $(selectors.carouselSlider).empty();
       $.each(products, (index, product) => {
         const cardDiv = `
-        <a href="${product.url}" class=${classes.productLink} target="_blank">
-            <div class=${classes.productCard} data-product-id="${product.id}">
-                <div class=${classes.imgWrapper}>
-                    <img src=${product.img} class=${classes.productImg} />
-                    <div class=${classes.favorite}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" fill="none"><path fill="#fff" fill-rule="evenodd" stroke="#B6B7B9" d="M19.97 6.449c-.277-3.041-2.429-5.247-5.123-5.247-1.794 0-3.437.965-4.362 2.513C9.57 2.147 7.993 1.2 6.228 1.2c-2.694 0-4.846 2.206-5.122 5.247-.022.135-.112.841.16 1.994.393 1.663 1.3 3.175 2.621 4.373l6.594 5.984 6.707-5.984c1.322-1.198 2.228-2.71 2.62-4.373.273-1.152.183-1.86.162-1.993z" clip-rule="evenodd"></path></svg>
-                    </div>
+          <div class=${classes.productCardWrapper}>
+            <div class=${classes.productCard} data-product-id="${product.id}" data-url="${product.url}">
+              <div class=${classes.imgWrapper}>
+                  <img src=${product.img} class=${classes.productImg} />
+                  <div class=${classes.favorite}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" fill="none"><path fill="#fff" fill-rule="evenodd" stroke="#B6B7B9" d="M19.97 6.449c-.277-3.041-2.429-5.247-5.123-5.247-1.794 0-3.437.965-4.362 2.513C9.57 2.147 7.993 1.2 6.228 1.2c-2.694 0-4.846 2.206-5.122 5.247-.022.135-.112.841.16 1.994.393 1.663 1.3 3.175 2.621 4.373l6.594 5.984 6.707-5.984c1.322-1.198 2.228-2.71 2.62-4.373.273-1.152.183-1.86.162-1.993z" clip-rule="evenodd"></path></svg>
+                  </div>
+              </div>
+              <div class=${classes.productInfo}>
+                <div class=${classes.productName}> <p>${product.name}</p> </div>
+                <div class=${classes.productPrice}>
+                  <div class=${classes.oldPrice}>
+                    <p>&nbsp;</p>
+                  </div>
+                  <div class=${classes.currentPrice}>
+                    <p>${product.price} TL</p>
+                  </div>
                 </div>
-                <div class=${classes.productInfo}>
-                    <div class=${classes.productName}> <p>${product.name}</p> </div>
-                    <div class=${classes.productPrice}>
-                      <div class=${classes.oldPrice}>
-                        <p>&nbsp;</p>
-                      </div>
-                      <div class=${classes.currentPrice}>
-                        <p>${product.price} TL</p>
-                      </div>
-                    </div>
+                <div class=${classes.cartBtnWrapper}>
+                  <span class=${classes.cartBtn}>Sepete Ekle</span>
                 </div>
+              </div>
             </div>
-        </a>
+          </div>
       `;
 
         $(selectors.carouselSlider).append(cardDiv);
@@ -497,6 +530,40 @@ function generateCarousel() {
         const currentScroll = $(selectors.carouselWrapper).scrollLeft();
         $(selectors.carouselWrapper).scrollLeft(currentScroll + 229);
       });
+
+      $(document).on(`click.productCardEvent`, selectors.productCard, function(e) {
+        
+        if(self.hasMoved) return;
+        
+        if ($(e.target).closest(selectors.cartBtn).length > 0) {
+          return;
+        }
+        
+        const url = $(this).data('url');
+        if (url) {
+          window.open(url, '_blank');
+        }
+      });
+
+      $(document).on(`click.cartEvent`, selectors.cartBtn, function(e) {
+        e.stopPropagation();
+
+        const productId = $(this)
+          .closest(`.${classes.productCard}`)
+          .data('product-id');
+        
+        const insCart = JSON.parse(localStorage.getItem('insCart') || '[]');
+
+        if (insCart.includes(productId)) {
+          alert('Ürün zaten sepetinizde bulunmaktadır.');
+          return;
+        }
+
+        insCart.push(productId);
+        localStorage.setItem('insCart', JSON.stringify(insCart));
+        alert('Ürün sepetinize eklendi.');
+      });
+      
     };
 
     self.enableMouseDragScroll = (wrapper) => {
@@ -506,6 +573,7 @@ function generateCarousel() {
 
       wrapper.on('mousedown', function (e) {
         isDown = true;
+        self.hasMoved = false;
         startX = e.pageX - wrapper.offset().left;
         scrollLeft = wrapper.scrollLeft();
         wrapper.addClass('dragging');
@@ -517,11 +585,13 @@ function generateCarousel() {
       });
 
       $(document).on('mousemove', function (e) {
+        self.hasMoved = true;
         if (!isDown) return;
         e.preventDefault();
         const x = e.pageX - wrapper.offset().left;
         const walk = (x - startX) * 1;
         wrapper.scrollLeft(scrollLeft - walk);
+
       });
     };
 
